@@ -59,15 +59,15 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO);
 
 
 // Set up projection and view matrices
-let height = 10;
+let height = 13;
 let width = height * canvas.width/canvas.height;
 let proj = GLM.Mat4.create();
 GLM.Mat4.orthoNO(proj, -0.5 * width,  0.5 * width, -0.5 * height, 0.5 * height, -100, 100);
 let view = GLM.Mat4.create();
 GLM.Mat4.lookAt(
     view,
-    GLM.Vec3.fromValues(-1.5, 1.0, -1.0),
-    GLM.Vec3.fromValues(0.0, 0.0, 0.0),
+    GLM.Vec3.fromValues(-1.5, -1.0, -1.0),
+    GLM.Vec3.fromValues(0.0, -2.0, 0.0),
     GLM.Vec3.fromValues(0.0, 1.0, 0.0)
 );
 
