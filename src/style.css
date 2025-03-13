@@ -89,19 +89,21 @@ canvas {
   padding: 5px;
   width: 0;
   flex-grow: 2;
+  min-width: 300px;
 }
 
 .portrait {
   padding: 30px;
   width: 0;
   flex-grow: 1;
+  min-width: 200px;
 }
 
 img {
   border-radius: 10px;
   height: 100%;
   width: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 hr {
