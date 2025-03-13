@@ -1,10 +1,10 @@
 import * as GLM from 'ts-gl-matrix'
 
-import { CellGrid, GridDimensions } from './cellGrid.ts'
+import { CellGrid, GridDimensions } from './grid/cellGrid.ts'
 
 import vertSource from '/src/shader/vert.glsl?raw'
 import fragSource from '/src/shader/frag.glsl?raw'
-import GridState from "./gridState.ts";
+import GridState from "./grid/gridState.ts";
 import AnimFace from "./mesh/animFace.ts";
 
 const UPDATE_INTERVAL = 5000;

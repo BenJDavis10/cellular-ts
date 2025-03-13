@@ -1,4 +1,4 @@
-import CellGrid from "../cellGrid.ts";
+import CellGrid from "../grid/cellGrid.ts";
 
 /**
  * Represents the three possible voxel face directions (we will only view from negative x, z and positive y).

@@ -1,7 +1,7 @@
 import Utils from "../utils.ts";
 
 import Face from './face.ts';
-import GridState from "../gridState.ts";
+import GridState from "../grid/gridState.ts";
 
 /**
  * The supported face animations
