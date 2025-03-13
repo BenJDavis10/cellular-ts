@@ -13,8 +13,11 @@ const ANIM_DURATION = 700;
 
 const canvas = document.querySelector('#canvas')! as HTMLCanvasElement;
 const root = document.querySelector('html')!;
+const bg = document.querySelector('.bg')!;
 canvas.width = root.scrollWidth;
 canvas.height = root.scrollHeight;
+const bgWidth = bg.scrollWidth;
+const bgHeight = bg.scrollHeight;
 const gl = canvas.getContext("webgl2")!;
 
 // Configure viewport
@@ -58,26 +61,40 @@ const EBO = gl.createBuffer();
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO);
 
 
-// Set up projection and view matrices
+// Projection and view transforms
 let height = 13;
 let width = height * canvas.width/canvas.height;
+let offset = (1.0 - (0.5 * bgHeight / canvas.height)) * 2.0 - 1.0;  // Center result on actual content
+
 let proj = GLM.Mat4.create();
+let transl = GLM.Mat4.create();
+GLM.Mat4.translate(transl, transl, GLM.Vec3.fromValues(0.0, offset, 0.0));
 GLM.Mat4.orthoNO(proj, -0.5 * width,  0.5 * width, -0.5 * height, 0.5 * height, -100, 100);
+GLM.Mat4.multiply(proj, transl, proj);
 let view = GLM.Mat4.create();
 GLM.Mat4.lookAt(
     view,
-    GLM.Vec3.fromValues(-1.5, -1.0, -1.0),
-    GLM.Vec3.fromValues(0.0, -2.0, 0.0),
+    GLM.Vec3.fromValues(-1.5, 1.0, -1.0),
+    GLM.Vec3.fromValues(0.0, 0.0, 0.0),
     GLM.Vec3.fromValues(0.0, 1.0, 0.0)
 );
 
 const projLoc = gl.getUniformLocation(prog, "P");
-gl.uniformMatrix4fv(projLoc, false, proj);
 const viewLoc = gl.getUniformLocation(prog, "V");
+gl.uniformMatrix4fv(projLoc, false, proj);
 gl.uniformMatrix4fv(viewLoc, false, view);
 
 // Initialize grid state
-let initGrid = CellGrid.makeRandom(new GridDimensions(5, 5, 5), 0.25);
+let gridWidth = Math.ceil(bgWidth / 200);
+let gridHeight = Math.ceil(bgHeight / 200);
+if (gridHeight > 2 * gridWidth) gridHeight = gridHeight + 2;
+
+const widthLoc = gl.getUniformLocation(prog, "gridWidth");
+const heightLoc = gl.getUniformLocation(prog, "gridHeight");
+gl.uniform1f(widthLoc, gridWidth);
+gl.uniform1f(heightLoc, gridHeight);
+
+let initGrid = CellGrid.makeRandom(new GridDimensions(gridWidth, gridHeight, gridWidth), 0.25);
 let gridState = GridState.makeFromGrid(initGrid);
 const rules = (current: number, neighbours: number) =>
     ( (current > 0 && neighbours >= 5 && neighbours <= 7) || (!current && (neighbours == 1)) ) ? 1 : 0;
