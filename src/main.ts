@@ -7,23 +7,23 @@ import fragSource from '/src/shader/frag.glsl?raw'
 import GridState from "./grid/gridState.ts";
 import AnimFace from "./mesh/animFace.ts";
 
-const UPDATE_INTERVAL = 5000;
-const ANIM_DURATION = 700;
+const UPDATE_INTERVAL = 1000;
+const ANIM_DURATION = 500;
+
+const GRID_WIDTH = 5;
+const GRID_HEIGHT = 5;
 
 
 const canvas = document.querySelector('#canvas')! as HTMLCanvasElement;
 const root = document.querySelector('html')!;
-const content = document.querySelector('.backdrop')!;
-canvas.width = root.scrollWidth;
-canvas.height = root.scrollHeight;
-const contentWidth = content.scrollWidth;
-const contentHeight = content.scrollHeight;
+canvas.width = Math.min(1.25 * root.clientHeight, root.clientWidth - 100);
+canvas.height = 0.75 * root.clientHeight;
 const gl = canvas.getContext("webgl2")!;
 
 // Configure viewport
 gl.viewport(0, 0, canvas.width, canvas.height);
 
-gl.clearColor(0, 0, 0, 0);
+gl.clearColor(0.25, 0.25, 0.25, 1.0);
 gl.enable(gl.DEPTH_TEST);
 
 // Compile shader program
@@ -62,20 +62,16 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO);
 
 
 // Projection and view transforms
-let height = 13;
+let height = 16;
 let width = height * canvas.width/canvas.height;
-let offset = (1.0 - (0.5 * contentHeight / canvas.height)) * 2.0 - 1.0;  // Center result on actual content
 
 let proj = GLM.Mat4.create();
-let transl = GLM.Mat4.create();
-GLM.Mat4.translate(transl, transl, GLM.Vec3.fromValues(0.0, offset, 0.0));
 GLM.Mat4.orthoNO(proj, -0.5 * width,  0.5 * width, -0.5 * height, 0.5 * height, -100, 100);
-GLM.Mat4.multiply(proj, transl, proj);
 let view = GLM.Mat4.create();
 GLM.Mat4.lookAt(
     view,
-    GLM.Vec3.fromValues(-1.5, 1.0, -1.0),
-    GLM.Vec3.fromValues(0.0, 0.0, 0.0),
+    GLM.Vec3.fromValues(-1.5, 0.0, -1.0),
+    GLM.Vec3.fromValues(0.0, -1.0, 0.0),
     GLM.Vec3.fromValues(0.0, 1.0, 0.0)
 );
 
@@ -85,16 +81,12 @@ gl.uniformMatrix4fv(projLoc, false, proj);
 gl.uniformMatrix4fv(viewLoc, false, view);
 
 // Initialize grid state
-let gridWidth = Math.ceil(contentWidth / 200);
-let gridHeight = Math.ceil(contentHeight / 200);
-if (gridHeight > 2 * gridWidth) gridHeight = gridHeight + 2;
-
 const widthLoc = gl.getUniformLocation(prog, "gridWidth");
 const heightLoc = gl.getUniformLocation(prog, "gridHeight");
-gl.uniform1f(widthLoc, gridWidth);
-gl.uniform1f(heightLoc, gridHeight);
+gl.uniform1f(widthLoc, GRID_WIDTH);
+gl.uniform1f(heightLoc, GRID_HEIGHT);
 
-let initGrid = CellGrid.makeRandom(new GridDimensions(gridWidth, gridHeight, gridWidth), 0.25);
+let initGrid = CellGrid.makeRandom(new GridDimensions(GRID_WIDTH, GRID_HEIGHT, GRID_WIDTH), 0.25);
 let gridState = GridState.makeFromGrid(initGrid);
 const rules = (current: number, neighbours: number) =>
     ( (current > 0 && neighbours >= 5 && neighbours <= 7) || (!current && (neighbours == 1)) ) ? 1 : 0;
@@ -137,6 +129,7 @@ const render = () => {
     )
 
     // Draw
+    gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bufferData(gl.ARRAY_BUFFER, vertData, gl.DYNAMIC_DRAW);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.DYNAMIC_DRAW);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
