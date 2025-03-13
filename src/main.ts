@@ -13,11 +13,11 @@ const ANIM_DURATION = 700;
 
 const canvas = document.querySelector('#canvas')! as HTMLCanvasElement;
 const root = document.querySelector('html')!;
-const bg = document.querySelector('.bg')!;
+const content = document.querySelector('.backdrop')!;
 canvas.width = root.scrollWidth;
 canvas.height = root.scrollHeight;
-const bgWidth = bg.scrollWidth;
-const bgHeight = bg.scrollHeight;
+const contentWidth = content.scrollWidth;
+const contentHeight = content.scrollHeight;
 const gl = canvas.getContext("webgl2")!;
 
 // Configure viewport
@@ -64,7 +64,7 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO);
 // Projection and view transforms
 let height = 13;
 let width = height * canvas.width/canvas.height;
-let offset = (1.0 - (0.5 * bgHeight / canvas.height)) * 2.0 - 1.0;  // Center result on actual content
+let offset = (1.0 - (0.5 * contentHeight / canvas.height)) * 2.0 - 1.0;  // Center result on actual content
 
 let proj = GLM.Mat4.create();
 let transl = GLM.Mat4.create();
@@ -85,8 +85,8 @@ gl.uniformMatrix4fv(projLoc, false, proj);
 gl.uniformMatrix4fv(viewLoc, false, view);
 
 // Initialize grid state
-let gridWidth = Math.ceil(bgWidth / 200);
-let gridHeight = Math.ceil(bgHeight / 200);
+let gridWidth = Math.ceil(contentWidth / 200);
+let gridHeight = Math.ceil(contentHeight / 200);
 if (gridHeight > 2 * gridWidth) gridHeight = gridHeight + 2;
 
 const widthLoc = gl.getUniformLocation(prog, "gridWidth");
